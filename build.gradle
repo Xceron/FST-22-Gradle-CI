@@ -1,0 +1,60 @@
+plugins {
+    id "java"
+    id "application"
+}
+
+repositories {
+    mavenCentral()
+}
+
+version = "0.1.0"
+sourceCompatibility = 11
+
+dependencies {
+    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+    implementation 'com.google.code.gson:gson:2.10'
+    // https://mvnrepository.com/artifact/junit/junit
+    testImplementation 'junit:junit:4.13.2'
+}
+
+task buildCore() {
+    sourceSets {
+        main {
+            java {
+                srcDir "src"
+                exclude "**/ui/**.java"
+            }
+        }
+        test {
+            java {
+                srcDir "test"
+                include "**/core/**.java"
+            }
+        }
+    }
+    finalizedBy(build)
+}
+
+task buildUI(dependsOn: buildCore) {
+    sourceSets {
+        main {
+            java {
+                srcDir "src"
+                exclude "**/core/**.java"
+            }
+        }
+    }
+    // TODO: Build UI classes
+}
+
+task runCore(dependsOn: buildCore) {
+    mainClassName = "TODO: Core Main Class"
+    // TODO: Runs Core classes and depends on buildCore
+}
+
+task runUI(dependsOn: buildUI) {
+    mainClassName = "TODO: UI Main Class"
+    // TODO: Runs UI classes and depends on runUI
+}
+
+// TODO: Unzip file
