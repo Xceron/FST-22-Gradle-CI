@@ -11,6 +11,7 @@ public class DataParserTest {
 
     @Test
     public void testParseJsonData() {
+        System.out.println("Running testParseJsonData");
         DataLoader dataLoader = new DataLoader();
         DataParser dataParser = new DataParser();
         String json = dataLoader.loadJsonFile("countries-aggregated_json.json");
