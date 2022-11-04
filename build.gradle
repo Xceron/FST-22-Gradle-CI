@@ -1,14 +1,22 @@
 plugins {
     id "java"
     id "application"
+    id "org.openjfx.javafxplugin" version "0.0.8"
+    id "de.undercouch.download" version "4.1.1"
+}
+
+version = "0.1.0"
+sourceCompatibility = 11
+
+javafx {
+    version = "11"
+    modules = ["javafx.controls"]
 }
 
 repositories {
     mavenCentral()
 }
 
-version = "0.1.0"
-sourceCompatibility = 11
 
 dependencies {
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
@@ -17,44 +25,71 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
 }
 
-task buildCore() {
-    sourceSets {
-        main {
-            java {
-                srcDir "src"
-                exclude "**/ui/**.java"
+task downloadZip(type: Download) {
+    src "https://datahub.io/core/covid-19/r/covid-19_zip.zip"
+    dest buildDir
+    onlyIfModified true
+}
+
+task unzip(type: Copy, dependsOn:  downloadZip) {
+    def zipFile = file("$buildDir/covid-19_zip.zip")
+    def outputDir = file("$buildDir/zips/unpacked/")
+
+    from zipTree(zipFile)
+    into outputDir
+}
+
+task copyJson(type: Copy, dependsOn: unzip) {
+    def jsonFile = file("$buildDir/zips/unpacked/data/countries-aggregated_json.json")
+    def resourceFolder = file("src/main/resources")
+
+    from jsonFile
+    into resourceFolder
+}
+
+task buildCore(dependsOn: copyJson) {
+    doLast {
+        sourceSets {
+            main {
+                java {
+                    srcDir "main"
+                    exclude "**/ui/*.java"
+                }
             }
-        }
-        test {
-            java {
-                srcDir "test"
-                include "**/core/**.java"
+            test {
+                java {
+                    srcDir "test"
+                    include "**/core/**.java"
+                }
             }
         }
     }
     finalizedBy(build)
 }
 
-task buildUI(dependsOn: buildCore) {
-    sourceSets {
-        main {
-            java {
-                srcDir "src"
-                exclude "**/core/**.java"
+task buildUI(dependsOn: copyJson) {
+    doLast {
+        sourceSets {
+            main {
+                java {
+                    srcDir "main"
+                }
             }
         }
     }
-    // TODO: Build UI classes
+    finalizedBy(build)
 }
 
 task runCore(dependsOn: buildCore) {
-    mainClassName = "TODO: Core Main Class"
-    // TODO: Runs Core classes and depends on buildCore
+    doLast {
+        mainClassName = "de.unitrier.st.core.Main"
+    }
+    finalizedBy(run)
 }
 
 task runUI(dependsOn: buildUI) {
-    mainClassName = "TODO: UI Main Class"
-    // TODO: Runs UI classes and depends on runUI
+    doLast {
+        mainClassName = "de.unitrier.st.ui.Ui"
+    }
+    finalizedBy(run)
 }
-
-// TODO: Unzip file
