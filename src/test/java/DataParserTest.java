@@ -15,6 +15,6 @@ public class DataParserTest {
         DataParser dataParser = new DataParser();
         String json = dataLoader.loadJsonFile("countries-aggregated_json.json");
         Map<String, List<CountryDataPoint>> data = dataParser.parseJsonData(json);
-        Assert.assertTrue(data.isEmpty());
+        Assert.assertFalse(data.isEmpty());
     }
 }
